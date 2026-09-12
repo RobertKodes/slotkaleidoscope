@@ -117,13 +117,16 @@ export function useChainPulse(paused: boolean) {
             degraded: false,
           }))
         }
-        if (now - lastSig > 2000) {
+        if (now - lastSig > (watchAt === 0 ? 0 : 1600)) {
           lastSig = now
-          const watch = WATCH[watchAt % WATCH.length]!
-          watchAt += 1
-          const { value: sigs } = await pool.getSigs(watch.key, 14)
-          if (ac.signal.aborted) return
-          ingest(sigs, watch.family)
+          const batch = watchAt === 0 ? 4 : 1
+          for (let i = 0; i < batch; i++) {
+            const watch = WATCH[watchAt % WATCH.length]!
+            watchAt += 1
+            const { value: sigs } = await pool.getSigs(watch.key, 12)
+            if (ac.signal.aborted) return
+            ingest(sigs, watch.family)
+          }
         }
       } catch {
         fails += 1

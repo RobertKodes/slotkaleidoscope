@@ -151,7 +151,7 @@ export class ParlorScope {
       a0: 0,
       r1: 0,
       a1: 0,
-      size: 10 + rng() * 18,
+      size: 20 + rng() * 26,
       rot: rng() * Math.PI * 2,
       rot1: rng() * Math.PI * 2,
       tumble: 1,
@@ -164,7 +164,7 @@ export class ParlorScope {
   }
 
   step(dt: number, now: number, pull: () => ShardSpec | null) {
-    const density = 8 + Math.floor(this.fee * 16)
+    const density = 12 + Math.floor(this.fee * 18)
     if (!this.frozen) {
       let n = 0
       while (this.shards.length < density && n < 4) {
@@ -220,9 +220,9 @@ export class ParlorScope {
     this.paintParlor(ctx, w, h)
 
     const cx = w * 0.5
-    const cy = h * 0.5 + Math.min(h, w) * 0.02
-    const R = Math.min(w, h) * 0.38
-    const inner = R * 0.78
+    const cy = h * 0.5 + Math.min(h, w) * 0.018
+    const R = Math.min(w, h) * 0.42
+    const inner = R * 0.86
 
     this.paintLampBloom(ctx, cx, cy, R)
     this.paintBarrel(ctx, cx, cy, R)
@@ -262,11 +262,11 @@ export class ParlorScope {
   }
 
   private paintLampBloom(ctx: CanvasRenderingContext2D, cx: number, cy: number, R: number) {
-    const heat = this.capped ? this.fee * 0.35 : 0.28 + this.fee * 0.72
-    const glow = ctx.createRadialGradient(cx, cy, R * 0.7, cx, cy, R * 1.85)
-    glow.addColorStop(0, rgba(PALETTE.lampoil, 0.01))
-    glow.addColorStop(0.45, rgba(PALETTE.lampoil, 0.08 * heat))
-    glow.addColorStop(0.72, rgba(PALETTE.brass, 0.14 * heat))
+    const heat = this.capped ? this.fee * 0.35 : 0.38 + this.fee * 0.72
+    const glow = ctx.createRadialGradient(cx, cy, R * 0.62, cx, cy, R * 1.95)
+    glow.addColorStop(0, rgba(PALETTE.lampoil, 0.02))
+    glow.addColorStop(0.42, rgba(PALETTE.lampoil, 0.14 * heat))
+    glow.addColorStop(0.7, rgba(PALETTE.brass, 0.2 * heat))
     glow.addColorStop(1, 'rgba(0,0,0,0)')
     ctx.fillStyle = glow
     ctx.beginPath()
@@ -275,24 +275,24 @@ export class ParlorScope {
   }
 
   private paintBarrel(ctx: CanvasRenderingContext2D, cx: number, cy: number, R: number) {
-    const outer = R * 1.16
+    const outer = R * 1.1
     const metal = ctx.createLinearGradient(cx - outer, cy - outer, cx + outer, cy + outer)
-    metal.addColorStop(0, '#7a5a2a')
+    metal.addColorStop(0, '#8a6428')
     metal.addColorStop(0.28, PALETTE.brass)
-    metal.addColorStop(0.55, '#8a6a32')
+    metal.addColorStop(0.55, '#7a5420')
     metal.addColorStop(0.82, '#e8c878')
-    metal.addColorStop(1, '#5a4018')
+    metal.addColorStop(1, '#4a3010')
     ctx.beginPath()
     ctx.arc(cx, cy, outer, 0, Math.PI * 2)
     ctx.fillStyle = metal
     ctx.fill()
 
     ctx.save()
-    ctx.strokeStyle = rgba(PALETTE.coal, 0.35)
-    ctx.lineWidth = 1.2
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 6; i++) {
+      ctx.strokeStyle = i % 2 === 0 ? rgba(PALETTE.coal, 0.42) : rgba(PALETTE.lampoil, 0.22)
+      ctx.lineWidth = i % 2 === 0 ? 1.6 : 1
       ctx.beginPath()
-      ctx.arc(cx, cy, R * (1.02 + i * 0.028), 0, Math.PI * 2)
+      ctx.arc(cx, cy, R * (1.015 + i * 0.014), 0, Math.PI * 2)
       ctx.stroke()
     }
     ctx.restore()
@@ -300,15 +300,15 @@ export class ParlorScope {
     const rivets = 12
     for (let i = 0; i < rivets; i++) {
       const t = (i / rivets) * Math.PI * 2 + 0.12
-      const rr = R * 1.09
+      const rr = R * 1.045
       const x = cx + Math.cos(t) * rr
       const y = cy + Math.sin(t) * rr
-      const rg = ctx.createRadialGradient(x - 1, y - 1, 0.4, x, y, 3.4)
-      rg.addColorStop(0, '#f0d890')
-      rg.addColorStop(0.6, PALETTE.brass)
-      rg.addColorStop(1, '#4a3010')
+      const rg = ctx.createRadialGradient(x - 1.4, y - 1.4, 0.4, x, y, 5)
+      rg.addColorStop(0, '#f4dc9a')
+      rg.addColorStop(0.55, PALETTE.brass)
+      rg.addColorStop(1, '#3a2410')
       ctx.beginPath()
-      ctx.arc(x, y, 3.1, 0, Math.PI * 2)
+      ctx.arc(x, y, 4.2, 0, Math.PI * 2)
       ctx.fillStyle = rg
       ctx.fill()
     }
@@ -376,9 +376,15 @@ export class ParlorScope {
       ctx.arc(0, 0, inner, -WEDGE / 2, WEDGE / 2)
       ctx.closePath()
       ctx.clip()
+      const glass = ctx.createLinearGradient(0, 0, inner * 0.55, inner * 0.2)
+      glass.addColorStop(0, rgba(PALETTE.lampoil, 0.07))
+      glass.addColorStop(0.55, rgba(PALETTE.felt, 0.05))
+      glass.addColorStop(1, 'rgba(0,0,0,0)')
+      ctx.fillStyle = glass
+      ctx.fill()
       this.paintShards(ctx, inner)
-      ctx.strokeStyle = rgba(PALETTE.smoke, 0.16)
-      ctx.lineWidth = 1
+      ctx.strokeStyle = rgba(PALETTE.smoke, 0.28)
+      ctx.lineWidth = 1.15
       ctx.beginPath()
       ctx.moveTo(0, 0)
       ctx.lineTo(Math.cos(-WEDGE / 2) * inner, Math.sin(-WEDGE / 2) * inner)
@@ -391,9 +397,9 @@ export class ParlorScope {
 
   private paintShards(ctx: CanvasRenderingContext2D, inner: number) {
     for (const s of this.shards) {
-      const x = Math.cos(s.a) * s.r * inner * 0.92
-      const y = Math.sin(s.a) * s.r * inner * 0.92
-      const size = s.size * (inner / 220)
+      const x = Math.cos(s.a) * s.r * inner * 0.9
+      const y = Math.sin(s.a) * s.r * inner * 0.9
+      const size = s.size * (inner / 150)
       if (s.failed && s.wound === 'gap') {
         ctx.save()
         ctx.translate(x, y)
@@ -403,17 +409,17 @@ export class ParlorScope {
         ctx.lineTo(size * 0.5, -size * 0.1)
         ctx.lineTo(-size * 0.15, size * 0.6)
         ctx.closePath()
-        ctx.fillStyle = 'rgba(6,4,3,0.92)'
+        ctx.fillStyle = 'rgba(6,4,3,0.94)'
         ctx.fill()
-        ctx.strokeStyle = rgba(PALETTE.claret, 0.35)
-        ctx.lineWidth = 0.8
+        ctx.strokeStyle = rgba(PALETTE.claret, 0.5)
+        ctx.lineWidth = 1
         ctx.stroke()
         ctx.restore()
         continue
       }
 
       const tint = s.failed && s.wound === 'soot' ? '#1a100c' : familyColor(s.family)
-      const alpha = s.failed ? 0.72 : 0.78
+      const alpha = s.failed ? 0.8 : 0.88
       ctx.save()
       ctx.translate(x, y)
       ctx.rotate(s.rot)
@@ -427,14 +433,14 @@ export class ParlorScope {
         else ctx.lineTo(px, py)
       }
       ctx.closePath()
-      const lg = ctx.createLinearGradient(-size, -size, size, size)
-      lg.addColorStop(0, rgba(PALETTE.smoke, 0.35))
-      lg.addColorStop(0.4, rgba(tint, alpha))
-      lg.addColorStop(1, rgba(PALETTE.coal, 0.55))
+      const lg = ctx.createLinearGradient(-size, -size, size * 0.8, size)
+      lg.addColorStop(0, rgba(PALETTE.lampoil, 0.28))
+      lg.addColorStop(0.28, rgba(tint, alpha))
+      lg.addColorStop(1, rgba(tint, 0.55))
       ctx.fillStyle = lg
       ctx.fill()
-      ctx.strokeStyle = rgba(PALETTE.smoke, s.failed ? 0.2 : 0.45)
-      ctx.lineWidth = 0.9
+      ctx.strokeStyle = rgba(tint, s.failed ? 0.35 : 0.7)
+      ctx.lineWidth = 1.05
       ctx.stroke()
 
       ctx.beginPath()
