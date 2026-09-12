@@ -151,7 +151,7 @@ export class ParlorScope {
       a0: 0,
       r1: 0,
       a1: 0,
-      size: 20 + rng() * 26,
+      size: 13 + rng() * 16,
       rot: rng() * Math.PI * 2,
       rot1: rng() * Math.PI * 2,
       tumble: 1,
@@ -164,12 +164,18 @@ export class ParlorScope {
   }
 
   step(dt: number, now: number, pull: () => ShardSpec | null) {
-    const density = 12 + Math.floor(this.fee * 18)
+    const density = 10 + Math.floor(this.fee * 12)
+    const perFamily = Math.max(2, Math.ceil(density / 3))
     if (!this.frozen) {
       let n = 0
-      while (this.shards.length < density && n < 4) {
+      while (this.shards.length < density && n < 6) {
         const spec = pull()
         if (!spec) break
+        const have = this.shards.filter((s) => s.family === spec.family).length
+        if (have >= perFamily && !spec.failed) {
+          n += 1
+          continue
+        }
         this.add(spec, now)
         n += 1
       }
@@ -396,7 +402,9 @@ export class ParlorScope {
   }
 
   private paintShards(ctx: CanvasRenderingContext2D, inner: number) {
-    for (const s of this.shards) {
+    const rank = (f: Family) => (f === 'SYS' ? 0 : f === 'JUP' ? 1 : 2)
+    const ordered = [...this.shards].sort((a, b) => rank(a.family) - rank(b.family))
+    for (const s of ordered) {
       const x = Math.cos(s.a) * s.r * inner * 0.9
       const y = Math.sin(s.a) * s.r * inner * 0.9
       const size = s.size * (inner / 150)

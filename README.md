@@ -38,7 +38,7 @@ Named hex, parlor brass and felt, six dyes:
 | **smoke** | `#CDB892` | Smoked glass, token shards, labels |
 | **claret** | `#8B2430` | Fail linger, capped latch |
 
-RAY ember (`#B85A38`) is brass mixed toward claret. Stake dim (`#9A7A48`) is brass into coal. Unknown ash (`#6A5848`) is smoke dimmed into coal. None is a seventh brand color.
+RAY ember (`#9C3A2C`) is brass mixed toward claret. Stake dim (`#8A6A3A`) is brass into coal. Unknown ash (`#6A5848`) is smoke dimmed into coal. None is a seventh brand color.
 
 ## Type
 

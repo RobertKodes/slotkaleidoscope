@@ -11,9 +11,9 @@ export const PALETTE = {
 export type PaletteName = keyof typeof PALETTE
 
 /** RAY sits between brass and claret — not a seventh brand color. */
-export const RAY_EMBER = '#B85A38'
+export const RAY_EMBER = '#9C3A2C'
 /** Stake is brass dimmed into coal. */
-export const STAKE_DIM = '#9A7A48'
+export const STAKE_DIM = '#8A6A3A'
 /** Unknown is smoke mixed into coal. */
 export const UNKNOWN_ASH = '#6A5848'
 
