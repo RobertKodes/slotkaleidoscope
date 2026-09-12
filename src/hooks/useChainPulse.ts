@@ -20,6 +20,28 @@ export type PulseHud = {
   live: boolean
 }
 
+function interleave(items: ShardSpec[]): ShardSpec[] {
+  const buckets = new Map<Family, ShardSpec[]>()
+  for (const item of items) {
+    const list = buckets.get(item.family) ?? []
+    list.push(item)
+    buckets.set(item.family, list)
+  }
+  const out: ShardSpec[] = []
+  let more = true
+  while (more) {
+    more = false
+    for (const list of buckets.values()) {
+      const next = list.shift()
+      if (next) {
+        out.push(next)
+        more = true
+      }
+    }
+  }
+  return out
+}
+
 const EMPTY: PulseHud = {
   slot: null,
   tps: null,
@@ -65,6 +87,7 @@ export function useChainPulse(paused: boolean) {
         if (queueRef.current.length > 96) {
           queueRef.current.splice(0, queueRef.current.length - 96)
         }
+        queueRef.current = interleave(queueRef.current)
         if (seen.size > 480) {
           const keep = [...seen].slice(-220)
           seenRef.current = new Set(keep)
